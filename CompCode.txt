@@ -1,0 +1,114 @@
+#ages at 2 6 10 12 14 16
+
+MyData1 <- read.csv(file="C:\\Users\\ajhon\\Desktop\\bellagos-ltc-spreadsheet-v2.csv", header=TRUE, sep=",")
+agesPre <- MyData1[2]
+ages = list()
+age <- 0
+for (i in 6:10005){
+	str <- agesPre[i,1]
+	if(substr(str, 1,2) == "00"){
+		age <- strtoi(substr(str,3,3))
+	}
+	else if (substr(str, 1,1) == "0"){
+		age <- strtoi(substr(str,2,3))
+	} else{
+		age <- strtoi(substr(str,1,3))
+	}
+	ages[i - 5] <- age
+}
+agecount <- length(ages)
+
+agesPre <- MyData1[6]
+for (i in 6:10005){
+	str <- agesPre[i,1]
+	if(str != "xxx"){
+		if(substr(str, 1,2) == "00"){
+			age <- strtoi(substr(str,3,3))
+		}
+		else if (substr(str, 1,1) == "0"){
+			age <- strtoi(substr(str,2,3))
+		}
+		else{
+			age <- strtoi(substr(str,1,3))
+		}
+		ages[agecount] <- age
+		agecount = agecount + 1
+	}
+}
+
+agesPre <- MyData1[10]
+for (i in 6:10005){
+	str <- agesPre[i,1]
+	if(str != "xxx"){
+		if(substr(str, 1,2) == "00"){
+			age <- strtoi(substr(str,3,3))
+		}
+		else if (substr(str, 1,1) == "0"){
+			age <- strtoi(substr(str,2,3))
+		}
+		else{
+			age <- strtoi(substr(str,1,3))
+		}
+		ages[agecount] <- age
+		agecount = agecount + 1
+	}
+}
+
+agesPre <- MyData1[12]
+for (i in 6:10005){
+	str <- agesPre[i,1]
+	if(str != "xxx"){
+		if(substr(str, 1,2) == "00"){
+			age <- strtoi(substr(str,3,3))
+		}
+		else if (substr(str, 1,1) == "0"){
+			age <- strtoi(substr(str,2,3))
+		}
+		else{
+			age <- strtoi(substr(str,1,3))
+		}
+		ages[agecount] <- age
+		agecount = agecount + 1
+	}
+}
+
+agesPre <- MyData1[14]
+for (i in 6:10005){
+	str <- agesPre[i,1]
+	if(str != "xxx"){
+		if(substr(str, 1,2) == "00"){
+			age <- strtoi(substr(str,3,3))
+		}
+		else if (substr(str, 1,1) == "0"){
+		age <- strtoi(substr(str,2,3))
+		}
+		else{
+			age <- strtoi(substr(str,1,3))
+		}
+		ages[agecount] <- age
+		agecount = agecount + 1
+	}
+}
+
+agesPre <- MyData1[16]
+for (i in 6:10005){
+	str <- agesPre[i,1]
+	if(str != "xxx"){
+		if(substr(str, 1,2) == "00"){
+			age <- strtoi(substr(str,3,3))
+		}
+		else if (substr(str, 1,1) == "0"){
+			age <- strtoi(substr(str,2,3))
+		}
+		else{
+			age <- strtoi(substr(str,1,3))
+		}
+		ages[agecount] <- age
+		agecount = agecount + 1
+	}
+}
+
+agesToUse = 1:length(ages)
+for (i in 1: length(ages)){
+	agesToUse[i] <- strtoi(toString(ages[i]))
+}
