@@ -217,22 +217,35 @@ def populationByAge( ):
     print(careLevel4Women)
     ageDistributionMale = []
     ageDistributionFemale = []
-    for i in range(0, 128):
+    for i in range(0, 118):
         ageDistributionMale.append(ageListMale.count(i))
         ageDistributionFemale.append(ageListFemale.count(i))
 
-    print("Age Distributions at ages 0 thru 127")
+    print("Male Age Distributions at ages 0 thru 127")
     print(ageDistributionMale)
+    print(min(ageListMale))
+    print(max(ageListMale))
+    print(len(ageDistributionMale))
+    print("Female Age Distributions at ages 0 thru 127")
     print(ageDistributionFemale)
+    print(min(ageListFemale))
+    print(max(ageListFemale))
+    print(len(ageDistributionFemale))
     careLevel0MenDist = []
+    careLevel1MenDist = []
     careLevel2MenDist = []
     careLevel3MenDist = []
     careLevel4MenDist = []
     careLevel0WomenDist = []
+    careLevel1WomenDist = []
     careLevel2WomenDist = []
     careLevel3WomenDist = []
     careLevel4WomenDist = []
-    for i in range(65,128):
+    for i in range(65,118):
+        print("count")
+        print(careLevel0Men.count(i))
+        print("Number of men at age i")
+        print(ageDistributionMale[i])
         careLevel0MenDist.append(careLevel0Men.count(i)/ageDistributionMale[i])
         careLevel1MenDist.append(careLevel1Men.count(i)/ageDistributionMale[i])
         careLevel2MenDist.append(careLevel2Men.count(i)/ageDistributionMale[i])
@@ -245,12 +258,14 @@ def populationByAge( ):
         careLevel0WomenDist.append(careLevel4Women.count(i)/ageDistributionMale[i])
     numPeopleDistMale = 0
     numPeopleDistFemale = 0
-    for i in range(0, 128):
+    for i in range(0, 118):
         numPeopleDistMale = numPeopleDistMale + ageDistributionMale[i]
         numPeopleDistFemale = numPeopleDistFemale + ageDistributionFemale[i]
 
     print(numPeopleDistMale, len(ageListMale))
     print(numPeopleDistFemale, len(ageListFemale))
+    careLevelDists = [careLevel0MenDist,careLevel1MenDist,careLevel2MenDist,careLevel3MenDist,careLevel4MenDist,careLevel0WomenDist,careLevel1WomenDist,careLevel2WomenDist,careLevel3WomenDist,careLevel4WomenDist]
+    return careLevelDists
 
 def mortalityAnalysisByAge():
 
