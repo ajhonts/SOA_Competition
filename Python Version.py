@@ -290,6 +290,36 @@ def mortalityAnalysisByAge():
     mortDists = [maleMortList, femMortList]
     return mortDists
 
+def transitionMatrix():
+    transM = pd.read_excel('Chopped_Sheet.xlsx', sheet_name='Care Level Transition Matrix')
+    transM.set_index('Index', inplace = True)
+
+    # initialize transition matrices as lists
+    transM0 = []
+    transM1 = []
+    transM2 = []
+    transM3 = []
+    transM4 = []
+
+    # collect all of the probabilities in the correct lists
+    for i in range(1, 6):
+        transM0.append(transM.at[i + 5*0])
+        transM1.append(transM.at[i + 5*1])
+        transM2.append(transM.at[i + 5*2])
+        transM3.append(transM.at[i + 5*3])
+        transM4.append(transM.at[i + 5*4])
+
+    # format of this data structure is like this
+    # from is vertical, to is horizontal. The intersection is the probablity of going from one to another
+    #        0  1  2  3  4
+    #       0
+    #       1
+    #       2
+    #       3
+    #       4
+    #   format for use "transM[From][To]" will give the probability going from first index to second index.
+    fullTransitionMatrix = [transM0, transM1, transM2, transM3, transM4]
+    return fullTransitionMatrix
 
 def sim(numYears=1, initialPopulation=100000):
     # Set up matrices. Easiest to call popbyAge because it already has the correct structure (almost)
