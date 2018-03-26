@@ -401,6 +401,8 @@ def mortalityAnalysisByAge():
     print(maleMortList)
     print(femMortList)
 
+    print(maleLinReg)
+
     mortDists = [maleMortList, maleLinReg, femMortList, femLinReg]
     return mortDists
 
@@ -457,10 +459,10 @@ def sim(numYears = 1, initialPopulation = 80000000):
     mort = mortalityAnalysisByAge()
     transM = transitionMatrix()
 
-    print("######################### SIMULATION START ############################")
+    print("\n\n######################### SIMULATION START ############################")
 
     # just debugging the curLiability information.
-    print(curLiability[0])
+   # print(curLiability[0])
 
     # SHOULD be filling in matrix
     # To my understanding, the matrix initially has just ratios of total population in each group, so this should allow
@@ -469,7 +471,9 @@ def sim(numYears = 1, initialPopulation = 80000000):
         for j in range (0, 111):
             curLiability[i][j] = int(curLiability[i][j] * initialPopulation)
 
-    print(curLiability[0])
+    if (not wellFormedADT(curLiability)) or (not wellFormedADT(frwLiability)):
+        print("ADT is incorrect before sim starts...")
+        exit(1)
 
     # Initial conditions are completed. Now, run the simulation a number of times equal to the input
     # number of years
@@ -480,10 +484,15 @@ def sim(numYears = 1, initialPopulation = 80000000):
         for i in range(0, 110):
             frwLiability[0][i+1] = curLiability[0][i] * (1 - mort[0][i])
             frwLiability[5][i+1] = curLiability[0][i] * (1 - mort[1][i])
+        if (not wellFormedADT(curLiability)) or (not wellFormedADT(frwLiability)):
+            print("ADT is incorrect after asset mortality loop")
+            exit(1)
+
+
         # OKAY so I found an error. After the above loop on time step 1, the entire array NaN's out. So we have
         # no working code for more than 1 time step. I probably just have to be wasteful and make the curLiability a
         # copy of frwLiability.... gonna be dumb.
-        print("Frw of 0 after deaths", frwLiability[0])
+       # print("Frw of 0 after deaths", frwLiability[0])
 
         # This fills in the survival of people in care levels. Since mortality rate is tripled for
         # care level > 0, this gets its own loop. Two of these so that Female also happens
@@ -493,6 +502,10 @@ def sim(numYears = 1, initialPopulation = 80000000):
         for i in range(6, 10):
             for j in range(65, 110):
                 frwLiability[i][j + 1] = curLiability[i][j] * (1 - (3 * mort[1][j]))
+
+        if (not wellFormedADT(curLiability)) or (not wellFormedADT(frwLiability)):
+            print("ADT is incorrect after liability mortality loop")
+            exit(1)
 
         # temporary array. Will hold the values of the care levels while tMatrix is being applied
         tmpArray = [0, 0, 0, 0, 0]
@@ -505,24 +518,34 @@ def sim(numYears = 1, initialPopulation = 80000000):
                 tmpArray[i] = frwLiability[i][j]
             for i in range(0, 5):
                 frwLiability[i][j] = tmpArray[0] * transM[0][i] + tmpArray[1] * transM[1][i] + tmpArray[2] * transM[2][i] + tmpArray[3] * transM[3][i] + tmpArray[4] * transM[4][i]
-
+                if(frwLiability[i][j] < 0):
+                    print(frwLiability, " is bad value for index = [", i, "] [", j, "]")
+                    exit(1)
             for i in range(5, 10):
                 tmpArray[i - 5] = frwLiability[i][j]
             for i in range(5, 10):
                 j = i - 5
                 frwLiability[i][j] = tmpArray[0] * transM[0][j] + tmpArray[1] * transM[1][j] + tmpArray[2] * transM[2][j] + tmpArray[3] * transM[3][j] + tmpArray[4] * transM[4][j]
 
+        if (not wellFormedADT(curLiability)) or (not wellFormedADT(frwLiability)):
+            print("ADT is incorrect after transition matrix loop")
+            exit(1)
 
         # Update cur pointer to frw. Next time step, frw is obviously the cur.
         # frw now becomes an empty array of the proper size.
         for i in range(0, 10):
             for j in range(0, 111):
-                curLiability[i][j] = int(frwLiability[i][j])
+                curLiability[i][j] = frwLiability[i][j]
       #  curLiability = frwLiability
        # frwLiability = [[], [], [], [], [], [], [], [], [], []]
       #  for i in range(0, 111):
        #     for j in range(0, 10):
         #        frwLiability[j].append(0)
+
+
+        if (not wellFormedADT(curLiability)) or (not wellFormedADT(frwLiability)):
+            print("ADT is incorrect after advancing cur to frw")
+            exit(1)
 
         print("\n\n")
 
@@ -530,3 +553,47 @@ def sim(numYears = 1, initialPopulation = 80000000):
         for i in range(0, 111):
             mort[0][i] = mort[0][i] + mort[1][i]
             mort[2][i] = mort[2][i] + mort[3][i]
+            if mort[0][i] < 0 or mort[2][i] < 0 or mort[0][i] > 1 or mort[2][i] > 1:
+                print("mortality value incorrect at index = [0] or [2] and [", i, "]")
+                exit(1)
+
+
+def wellFormedADT(struct):
+
+    for i in range(0, 10):
+        for j in range(0, 111):
+            if struct[i][j] < 0:
+                print("Negative value found for index = [", i, "] [", j, "]")
+                return False
+            if np.isnan(struct[i][j]):
+                print("Nan found for index = [", i, "] [", j, "]")
+                return False
+
+    for i in range(1, 5):
+        for j in range(0, 65):
+            if struct[i][j] > 0:
+                print("non-zero value found below 65. Index = [", i, "] [", j, "]")
+                return False
+
+    for i in range(6, 10):
+        for j in range(0, 65):
+            if struct[i][j] > 0:
+                print("non-zero value found below 65. Index = [", i, "] [", j, "]")
+                return False
+
+    return True
+
+def populationRedo():
+    df = pd.read_excel('Chopped_Sheet.xlsx', sheet_name='HH Records Data')
+
+    df.set_index('Record Number', inplace=True)
+
+
+
+########################################################################################################################
+
+# mortalityAnalysisByAge()
+# populationByAge()
+# transitionMatrix()
+
+sim()
