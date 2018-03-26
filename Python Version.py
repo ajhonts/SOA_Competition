@@ -5,7 +5,7 @@ import pandas as pd
 #plt.rcdefaults()
 #import matplotlib.pyplot as plt; plt.rcdefaults()
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 #######################################################################################################################
@@ -482,7 +482,7 @@ def sim(numYears = 1, initialPopulation = 80000000):
 
     # Initial conditions are completed. Now, run the simulation a number of times equal to the input
     # number of years
-    for y in (0, numYears):
+    for y in range (0, numYears):
         print("Time step number ", y+1)
         # This loop fills in the trivial portion of the array (without age 0 population, see fertility)
         # [0] is male level 0, [5] is female level 0
@@ -535,10 +535,10 @@ def sim(numYears = 1, initialPopulation = 80000000):
             for i in range(5, 10):
                 tmpArray[i - 5] = frwLiability[i][j]
             for i in range(5, 10):
-                j = i - 5
-                frwLiability[i][j] = tmpArray[0] * transM[0][j] + tmpArray[1] * transM[1][j] + tmpArray[2] * transM[2][j] + tmpArray[3] * transM[3][j] + tmpArray[4] * transM[4][j]
+                k = i - 5
+                frwLiability[i][j] = tmpArray[0] * transM[0][k] + tmpArray[1] * transM[1][k] + tmpArray[2] * transM[2][k] + tmpArray[3] * transM[3][k] + tmpArray[4] * transM[4][k]
 
-        if ((not wellFormedADT(frwLiability)):
+        if ((not wellFormedADT(frwLiability))):
             print("ADT is incorrect after transition matrix loop")
             exit(1)
 
@@ -567,6 +567,7 @@ def sim(numYears = 1, initialPopulation = 80000000):
   #          if mort[0][i] < 0 or mort[2][i] < 0 or mort[0][i] > 1 or mort[2][i] > 1:
   #              print("mortality value incorrect at index = [0] or [2] and [", i, "]")
   #              exit(1)
+    return frwLiability
 
 
 def wellFormedADT(struct):
@@ -607,4 +608,9 @@ def populationRedo():
 # populationByAge()
 # transitionMatrix()
 
-sim()
+x = sim()
+y = []
+for i in range(0,111):
+    y.append(i)
+#Bar Graph for number of people in care level 0 x axis is age
+plt.bar(y,x[0])
