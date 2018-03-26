@@ -1,7 +1,11 @@
 import pandas as pd
-import matplotlib.pyplot as plt; plt.rcdefaults()
+#import matplotlib
+#import matplotlib.pyplot as plt;
+
+#plt.rcdefaults()
+#import matplotlib.pyplot as plt; plt.rcdefaults()
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 #######################################################################################################################
@@ -401,6 +405,7 @@ def mortalityAnalysisByAge():
     print(maleMortList)
     print(femMortList)
 
+    print("\n\nMale lin regression slopes:")
     print(maleLinReg)
 
     mortDists = [maleMortList, maleLinReg, femMortList, femLinReg]
@@ -498,10 +503,16 @@ def sim(numYears = 1, initialPopulation = 80000000):
         # care level > 0, this gets its own loop. Two of these so that Female also happens
         for i in range(1, 5):
             for j in range(65, 110):
-                frwLiability[i][j + 1] = curLiability[i][j] * (1 - (3 * mort[0][j]))
+                if(3 * mort[0][j] > 1):
+                    frwLiability[i][j + 1] = 0
+                else:
+                    frwLiability[i][j + 1] = curLiability[i][j] * (1 - (3 * mort[0][j]))
         for i in range(6, 10):
             for j in range(65, 110):
-                frwLiability[i][j + 1] = curLiability[i][j] * (1 - (3 * mort[1][j]))
+                if(3 * mort[0][j] > 1):
+                    frwLiability[i][j + 1] = 0
+                else:
+                    frwLiability[i][j + 1] = curLiability[i][j] * (1 - (3 * mort[1][j]))
 
         if (not wellFormedADT(curLiability)) or (not wellFormedADT(frwLiability)):
             print("ADT is incorrect after liability mortality loop")
@@ -527,7 +538,7 @@ def sim(numYears = 1, initialPopulation = 80000000):
                 j = i - 5
                 frwLiability[i][j] = tmpArray[0] * transM[0][j] + tmpArray[1] * transM[1][j] + tmpArray[2] * transM[2][j] + tmpArray[3] * transM[3][j] + tmpArray[4] * transM[4][j]
 
-        if (not wellFormedADT(curLiability)) or (not wellFormedADT(frwLiability)):
+        if ((not wellFormedADT(frwLiability)):
             print("ADT is incorrect after transition matrix loop")
             exit(1)
 
@@ -550,12 +561,12 @@ def sim(numYears = 1, initialPopulation = 80000000):
         print("\n\n")
 
         # update the values of the mortality lists. Odd entries are the linear regression slope
-        for i in range(0, 111):
-            mort[0][i] = mort[0][i] + mort[1][i]
-            mort[2][i] = mort[2][i] + mort[3][i]
-            if mort[0][i] < 0 or mort[2][i] < 0 or mort[0][i] > 1 or mort[2][i] > 1:
-                print("mortality value incorrect at index = [0] or [2] and [", i, "]")
-                exit(1)
+  #      for i in range(0, 111):
+  #          mort[0][i] = mort[0][i] + mort[1][i]
+  #          mort[2][i] = mort[2][i] + mort[3][i]
+  #          if mort[0][i] < 0 or mort[2][i] < 0 or mort[0][i] > 1 or mort[2][i] > 1:
+  #              print("mortality value incorrect at index = [0] or [2] and [", i, "]")
+  #              exit(1)
 
 
 def wellFormedADT(struct):
