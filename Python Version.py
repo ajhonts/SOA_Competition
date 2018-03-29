@@ -254,7 +254,16 @@ def populationByAge( ):
     for i in range(0, 111):
         ageDistributionMale.append(ageListMale.count(i))
         ageDistributionFemale.append(ageListFemale.count(i))
+    ##############################################################################################
+    numberWomen = 0
+    numberYearOlds = ageDistributionMale[0] + ageDistributionFemale[0]
+    for i in range(0, 110):
+        numberWomen = numberWomen + ageDistributionFemale[i]
 
+    print("Number of women = ", numberWomen)
+    print("Number of one year olds = ", numberYearOlds)
+    print("Ratio = ", numberYearOlds / numberWomen)
+    ###############################################################################################
     # debugs the above loop.
 #    print("Male Age Distributions at ages 0 thru 110")
 #    print(ageDistributionMale)
@@ -279,6 +288,7 @@ def populationByAge( ):
     careLevel2WomenDist = []
     careLevel3WomenDist = []
     careLevel4WomenDist = []
+
 
     # fills the first 65 indices of the distribution lists
     # Because care levels cannot occur until age 65, the first 64 entries of care level 0 should be 1,
@@ -397,16 +407,15 @@ def mortalityAnalysisByAge():
     femMortList = []
     femLinReg = []
     for i in range (0, 111):
-        maleMortList.append(mf.at[i, "MaleAvg"])
-        maleLinReg.append(mf.at[i, "MaleDAvg"])
-        femMortList.append(mf.at[i, "FemAvg"])
-        femLinReg.append(mf.at[i, "FemDAvg"])
+        maleMortList.append(mf.at[i, "Male2015"])
+        maleLinReg.append(0)
+        femMortList.append(mf.at[i, "Fem2015"])
+        femLinReg.append(0)
 
+    print("\n\nMale mortality rates:")
     print(maleMortList)
+    print("Female mortality rates:")
     print(femMortList)
-
-    print("\n\nMale lin regression slopes:")
-    print(maleLinReg)
 
     mortDists = [maleMortList, maleLinReg, femMortList, femLinReg]
     return mortDists
@@ -450,7 +459,7 @@ def transitionMatrix():
 #########################################################################################################
 #########################################################################################################
 
-def sim(numYears = 1, initialPopulation = 80000000):
+def sim(numYears = 3, initialPopulation = 80000000):
     # Set up matrices. Easiest to call popbyAge because it already has the correct structure (almost)
     # These are simply percentages. We have two seperate lists that have percentages of population in each location.
     curLiability = populationByAge()
@@ -466,9 +475,6 @@ def sim(numYears = 1, initialPopulation = 80000000):
 
     print("\n\n######################### SIMULATION START ############################")
 
-    # just debugging the curLiability information.
-   # print(curLiability[0])
-
     # SHOULD be filling in matrix
     # To my understanding, the matrix initially has just ratios of total population in each group, so this should allow
     # us to enter in a random size population and immediately start a sim.
@@ -479,11 +485,34 @@ def sim(numYears = 1, initialPopulation = 80000000):
     if (not wellFormedADT(curLiability)) or (not wellFormedADT(frwLiability)):
         print("ADT is incorrect before sim starts...")
         exit(1)
-
+    #################################
     # Initial conditions are completed. Now, run the simulation a number of times equal to the input
     # number of years
     for y in range (0, numYears):
         print("Time step number ", y+1)
+
+
+        #########################################################################################
+        numFertile = 0
+        for j in range(0, 111):
+            for i in range(5, 10):
+                numFertile = numFertile + curLiability[i][j]
+
+
+        births = numFertile * (1/100)
+        print("Fertile women: ", numFertile)
+        frwLiability[0][0] = .5 * births
+        frwLiability[5][0] = .5 * births
+        print("Number of births in time step = ",  births)
+        numFertile = 0
+        for i in range(18, 110):
+            for j in range(5, 10):
+                numFertile = numFertile + curLiability[j][i]
+
+        print("Total number of women: ", numFertile)
+        #########################################################################################
+
+
         # This loop fills in the trivial portion of the array (without age 0 population, see fertility)
         # [0] is male level 0, [5] is female level 0
         for i in range(0, 110):
@@ -492,12 +521,6 @@ def sim(numYears = 1, initialPopulation = 80000000):
         if (not wellFormedADT(curLiability)) or (not wellFormedADT(frwLiability)):
             print("ADT is incorrect after asset mortality loop")
             exit(1)
-
-
-        # OKAY so I found an error. After the above loop on time step 1, the entire array NaN's out. So we have
-        # no working code for more than 1 time step. I probably just have to be wasteful and make the curLiability a
-        # copy of frwLiability.... gonna be dumb.
-       # print("Frw of 0 after deaths", frwLiability[0])
 
         # This fills in the survival of people in care levels. Since mortality rate is tripled for
         # care level > 0, this gets its own loop. Two of these so that Female also happens
@@ -547,11 +570,6 @@ def sim(numYears = 1, initialPopulation = 80000000):
         for i in range(0, 10):
             for j in range(0, 111):
                 curLiability[i][j] = frwLiability[i][j]
-      #  curLiability = frwLiability
-       # frwLiability = [[], [], [], [], [], [], [], [], [], []]
-      #  for i in range(0, 111):
-       #     for j in range(0, 10):
-        #        frwLiability[j].append(0)
 
 
         if (not wellFormedADT(curLiability)) or (not wellFormedADT(frwLiability)):
@@ -560,14 +578,19 @@ def sim(numYears = 1, initialPopulation = 80000000):
 
         print("\n\n")
 
+        #for i in range(0,10):
+        #    histo(curLiability[i])
+        histo(curLiability[0])
+        histo(curLiability[5])
         # update the values of the mortality lists. Odd entries are the linear regression slope
-  #      for i in range(0, 111):
-  #          mort[0][i] = mort[0][i] + mort[1][i]
-  #          mort[2][i] = mort[2][i] + mort[3][i]
-  #          if mort[0][i] < 0 or mort[2][i] < 0 or mort[0][i] > 1 or mort[2][i] > 1:
-  #              print("mortality value incorrect at index = [0] or [2] and [", i, "]")
-  #              exit(1)
-    return frwLiability
+        #for i in range(0, 111):
+        #    mort[0][i] = mort[0][i] + mort[1][i]
+        #    mort[2][i] = mort[2][i] + mort[3][i]
+        #    if mort[0][i] < 0 or mort[2][i] < 0 or mort[0][i] > 1 or mort[2][i] > 1:
+        #        print("mortality value incorrect at index = [0] or [2] and [", i, "]")
+        #        print("value for male is ", mort[0][i])
+        #        print("value for female is ", mort[2][i])
+        #        exit(1)
 
 
 def wellFormedADT(struct):
@@ -600,7 +623,15 @@ def populationRedo():
 
     df.set_index('Record Number', inplace=True)
 
+def histo(struct):
+    y = []
+    for i in range(0, 111):
+        y.append(i)
 
+    # Bar Graph for ages in array
+    plt.bar(y,struct)
+    plt.show()
+    #input("Enter to continue...")
 
 ########################################################################################################################
 
@@ -608,9 +639,4 @@ def populationRedo():
 # populationByAge()
 # transitionMatrix()
 
-x = sim()
-y = []
-for i in range(0,111):
-    y.append(i)
-#Bar Graph for number of people in care level 0 x axis is age
-plt.bar(y,x[0])
+sim()
