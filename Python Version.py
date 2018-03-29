@@ -491,7 +491,8 @@ def sim(numYears = 3, initialPopulation = 80000000):
     for y in range (0, numYears):
         print("Time step number ", y+1)
 
-
+        # Fertility is in births per 100 women. This number is added to the zero age of the frwLiability
+        # Births are assumed to be evenly male and female
         #########################################################################################
         numFertile = 0
         for j in range(0, 111):
